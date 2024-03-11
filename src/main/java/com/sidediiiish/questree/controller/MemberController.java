@@ -29,6 +29,8 @@ public class MemberController {
     public String create(@RequestBody MemberForm form) {
         Member member = new Member();
         member.setName(form.getName());
+        member.setEmail(form.getEmail());
+        member.setPassword(form.getPassword());
 
         memberService.join(member);
         return "Success";
