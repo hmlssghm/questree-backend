@@ -6,12 +6,11 @@ import com.sidediiiish.questree.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@RestController
 @Controller
 public class MemberController {
     private final MemberService memberService;
@@ -21,24 +20,24 @@ public class MemberController {
         this.memberService = memberService;
     }
 
-    @GetMapping("/members/new")
-    public String createForm() {
-        return "members/createMemberForm";
-    }
+//    @GetMapping("/members/new")
+//    public String createForm() {
+//        return "members/createMemberForm";
+//    }
 
     @RequestMapping(value="/members/new", method= RequestMethod.POST)
-    public String create(MemberForm form) {
+    public String create(@RequestBody MemberForm form) {
         Member member = new Member();
         member.setName(form.getName());
 
         memberService.join(member);
-        return "redirect:/";
+        return "Success";
     }
 
-    @GetMapping("/members")
-    public String list(Model model) {
-        List<Member> members = memberService.findMembers();
-        model.addAttribute("members", members);
-        return "members/memberList";
-    }
+//    @GetMapping("/members")
+//    public String list(Model model) {
+//        List<Member> members = memberService.findMembers();
+//        model.addAttribute("members", members);
+//        return "members/memberList";
+//    }
 }
