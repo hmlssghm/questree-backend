@@ -10,6 +10,4 @@ public class PlanForm {
     private String content;
 
     private PlanType type;
-
-    private Boolean isContinue;
 }

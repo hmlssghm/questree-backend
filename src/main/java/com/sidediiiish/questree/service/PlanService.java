@@ -42,4 +42,7 @@ public class PlanService {
     // 삭제
     public void delete(Long planId) { planRepository.deleteById(planId); }
 
+    public List<Plan> getAllPlans() {
+        return planRepository.findAll();
+    }
 }

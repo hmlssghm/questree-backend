@@ -8,23 +8,31 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.SecretKey;
+import java.util.List;
 
 @AllArgsConstructor
-@RestController
 @Controller
 public class PlanController {
     private final MemberRepository memberRepository;
     private final PlanService planService;
     private final SecretKey secretKey;
 
+    // 일정 조회 페이지(main)
+    @GetMapping("/plans")
+    public String showPlans(Model model) {
+        List<Plan> plans = planService.getAllPlans();
+        model.addAttribute("plans", plans);
+        return "plans/plans";
+    }
+
+
     // 새로운 일정 등록
     @RequestMapping(value="/plans/new", method= RequestMethod.POST)
-    public String create(@RequestBody PlanForm form, @RequestHeader("Authorization") String wrappedToken) {
-        String token = wrappedToken.split(" ")[1];
-
+    public String create(@RequestBody PlanForm form, @CookieValue(name = "token") String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(secretKey)
                 .build()
@@ -36,10 +44,11 @@ public class PlanController {
         Plan plan = new Plan();
         plan.setContent(form.getContent());
         plan.setType(form.getType());
-        plan.setIsContinue(form.getIsContinue());
+        plan.setIsContinue(Boolean.TRUE);
         plan.setMember(memberRepository.findByName(memberName).get());
 
         planService.create(plan);
-        return plan.getMember().getName();
+        return "redirect:/plans";
     }
+
 }

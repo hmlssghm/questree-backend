@@ -1,0 +1,24 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div class="container">
+    <div>
+        <h1>Questree</h1>
+        <p>로그인 화면</p>
+        <p>
+            <button onclick="redirectToSignUp()">회원 가입</button>
+            <button onclick="redirectToLogin()">로그인</button>
+        </p>
+    </div>
+</div> <!-- /container -->
+<script>
+    function redirectToSignUp() {
+        window.location.href = "/members/new";
+    }
+
+    function redirectToLogin() {
+        window.location.href = "/login";
+    }
+</script>
+</body>
+</html>

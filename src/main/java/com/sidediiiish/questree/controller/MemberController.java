@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.SecretKey;
@@ -21,16 +22,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @AllArgsConstructor
-@RestController
 @Controller
 public class MemberController {
     private final SecretKey secretKey;
     private final MemberService memberService;
 
-//    @GetMapping("/members/new")
-//    public String createForm() {
-//        return "members/createMemberForm";
-//    }
+    @GetMapping("/members/new")
+    public String createForm(Model model) {
+        model.addAttribute("memberForm", new MemberForm());
+        return "members/createMemberForm";
+    }
 
     @RequestMapping(value="/members/new", method= RequestMethod.POST)
     public String create(@RequestBody MemberForm form) {
@@ -40,7 +41,7 @@ public class MemberController {
         member.setPassword(form.getPassword());
 
         memberService.join(member);
-        return "Success";
+        return "redirect:/";
     }
 
 //    @GetMapping("/members")

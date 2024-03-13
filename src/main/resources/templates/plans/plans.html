@@ -1,0 +1,85 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <style>
+    .form-group {
+      display: inline-block;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div>
+    <table>
+      <thead>
+      <tr>
+        <th>#</th>
+        <th>plans</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="plan : ${plans}">
+        <td>
+          <input type="checkbox" th:checked="${!plan.isContinue}" th:attr="checked=${!plan.isContinue ? 'checked' : null}">
+        </td>
+        <td th:text="${plan.id}"></td>
+        <td th:text="${plan.content}"></td>
+        <td th:text="${plan.type}"></td>
+        <td th:text="${plan.member.name}"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div> <!-- /container -->
+<div class="container">
+  <form id="planForm">
+    <div class="form-group">
+      <label for="content">content</label>
+      <input type="text" id="content" name="content" placeholder="내용 입력하세요">
+    </div>
+    <div class="form-group">
+      <label for="type">타입</label>
+      <input type="text" id="type" name="type" placeholder="타입을 입력하세요">
+    </div>
+    <button type="submit">등록</button>
+  </form>
+</div> <!-- /container -->
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("planForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      var content = document.getElementById('content').value;
+      var type = document.getElementById('type').value;
+
+      var formData = {
+        content: content,
+        type: type
+      };
+
+
+      fetch('/plans/new', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      })
+              .then(response => {
+                // 응답 처리
+                if (response.redirected) {
+                  window.location.href = response.url; // 리다이렉트 수행
+                } else {
+                  // 리다이렉트가 아닌 경우에 대한 처리
+                  console.log(response);
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error);
+              });
+    });
+  });
+</script>
+</body>
+</html>

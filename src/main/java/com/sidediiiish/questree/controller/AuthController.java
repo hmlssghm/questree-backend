@@ -6,9 +6,9 @@ import com.sidediiiish.questree.repository.AuthRepository;
 import com.sidediiiish.questree.repository.MemberRepository;
 import io.jsonwebtoken.JwtBuilder;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.SecretKey;
@@ -17,12 +17,17 @@ import java.time.Instant;
 import java.util.*;
 
 @AllArgsConstructor
-@RestController
+@Controller
 public class AuthController {
     JwtBuilder jwtBuilder;
     SecretKey secretKey;
     AuthRepository authRepository;
     MemberRepository memberRepository;
+
+    @GetMapping("/login")
+    public String getLoginPage() {
+        return "members/login";
+    }
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody MemberForm form){
