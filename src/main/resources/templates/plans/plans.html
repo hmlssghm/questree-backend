@@ -6,6 +6,10 @@
             display: inline-block;
             margin-right: 10px;
         }
+        .edit-icon {
+            cursor: pointer;
+            margin-left: 5px;
+        }
     </style>
 </head>
 <body>
@@ -16,10 +20,11 @@
             <tr>
                 <th>#</th>
                 <th>plans</th>
+                <th>edit</th> <!-- New column for edit icon -->
             </tr>
             </thead>
             <tbody>
-            <tr th:each="plan : ${plans}">
+            <tr th:each="plan, planStat : ${plans}">
                 <td>
                     <input type="checkbox" class="planCheckbox" th:checked="${!plan.isContinue}"
                            th:attr="checked=${!plan.isContinue ? 'checked' : null}" th:data-plan-id="${plan.id}">
@@ -28,10 +33,29 @@
                 <td th:text="${plan.content}"></td>
                 <td th:text="${plan.type}"></td>
                 <td th:text="${plan.member.name}"></td>
+                <!-- Edit icon column -->
+                <td>
+                    <span class="edit-icon" onclick="editPlan(event, '${plan.id}')">&#9998;</span>
+                </td>
             </tr>
             </tbody>
         </table>
     </div>
+</div> <!-- /container -->
+<div class="container" id="editForm" style="display: none;">
+    <form id="editPlanForm">
+        <div class="form-group">
+            <label for="editContent">content</label>
+            <input type="text" id="editContent" name="content" placeholder="내용 입력하세요">
+        </div>
+        <div class="form-group">
+            <label for="editType">타입</label>
+            <input type="text" id="editType" name="type" placeholder="타입을 입력하세요">
+        </div>
+        <!-- Hidden field for planId -->
+        <input type="hidden" id="editPlanId" name="id" value="">
+        <button type="submit">등록</button>
+    </form>
 </div> <!-- /container -->
 <div class="container">
     <form id="planForm">
@@ -43,83 +67,138 @@
             <label for="type">타입</label>
             <input type="text" id="type" name="type" placeholder="타입을 입력하세요">
         </div>
-        <!-- Hidden field for planId -->
-        <input type="hidden" id="planId" name="id" value="">
-        <button type="submit">등록</button>
+        <button type="submit" onclick="submitPlan(event)">등록</button>
     </form>
-    <script>
-        // Submit the form when any checkbox changes
-        document.querySelectorAll(".planCheckbox").forEach(function (checkbox) {
-            checkbox.addEventListener("change", function (event) {
-                event.preventDefault();
+</div> <!-- /container -->
 
-                var planId = event.target.getAttribute("data-plan-id");
-                var content = event.target.closest("tr").querySelector("td:nth-child(4)").textContent.trim();
-                var type = event.target.closest("tr").querySelector("td:nth-child(5)").textContent.trim();
-                var planTypeMapping = {
-                    "TODO": 0,
-                    "WEEKLY": 1,
-                    "COUNT": 2
-                };
-                var isChecked = event.target.checked;
+<script>
+    function editPlan(event, id) {
+        event.preventDefault();
+        var row = event.target.closest('tr');
+        var editContent = row.querySelector('td:nth-child(3)').textContent.trim();
+        var editType = row.querySelector('td:nth-child(4)').textContent.trim();
 
-                var formData = {
-                    id: planId,
-                    content: content,
-                    type: planTypeMapping[type],
-                    isContinue: !isChecked
-                };
-
-                fetch('/plans/update', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                })
-                    .then(response => {
-                        if (response.redirected) {
-                            console.log('Plan updated successfully.');
-                            window.location.href = response.url;
-                        } else {
-                            console.error('Error updating plan:', response.status);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error updating plan:', error);
-                    });
-            });
+        // Hide other edit forms
+        document.querySelectorAll('.editForm').forEach(form => {
+            form.style.display = 'none';
         });
 
-        // Submit the form when submit button is clicked
-        document.getElementById("planForm").addEventListener("submit", function (event) {
+        // Show edit form for this row
+        document.getElementById('editForm').style.display = 'block';
+        document.getElementById('editPlanId').value = id;
+        document.getElementById('editContent').value = editContent;
+        document.getElementById('editType').value = editType;
+    }
+
+    // Submit the form when any checkbox changes
+    document.querySelectorAll(".planCheckbox").forEach(function (checkbox) {
+        checkbox.addEventListener("change", function (event) {
             event.preventDefault();
 
-            // Get form data
-            var formData = new FormData(document.getElementById("planForm"));
+            var planId = event.target.getAttribute("data-plan-id");
+            var content = event.target.closest("tr").querySelector("td:nth-child(3)").textContent.trim();
+            var type = event.target.closest("tr").querySelector("td:nth-child(4)").textContent.trim();
+            var planTypeMapping = {
+                "TODO": 0,
+                "WEEKLY": 1,
+                "COUNT": 2
+            };
+            var isChecked = event.target.checked;
 
-            fetch('/plans/new', {
+            var formData = {
+                id: planId,
+                content: content,
+                type: planTypeMapping[type],
+                isContinue: !isChecked
+            };
+
+            fetch('/plans/update', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(Object.fromEntries(formData))
+                body: JSON.stringify(formData)
             })
                 .then(response => {
-                    // 응답 처리
                     if (response.redirected) {
-                        window.location.href = response.url; // 리다이렉트 수행
+                        console.log('Plan updated successfully.');
+                        window.location.href = response.url;
                     } else {
-                        // 리다이렉트가 아닌 경우에 대한 처리
-                        console.log(response);
+                        console.error('Error updating plan:', response.status);
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    console.error('Error updating plan:', error);
                 });
-
         });
-    </script>
-</div> <!-- /container -->
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("editPlanForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            var planId = document.getElementById('editPlanId').value;
+            var content = document.getElementById('editContent').value;
+            var type = document.getElementById('editType').value;
+
+            var formData = {
+                id: planId,
+                content: content,
+                type: type
+            };
+
+            fetch('/plans/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+                .then(response => {
+                    if (response.redirected) {
+                        console.log('Plan updated successfully.');
+                        window.location.href = response.url;
+                    } else {
+                        console.error('Error updating plan:', response.status);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating plan:', error);
+                });
+        });
+    });
+
+    function submitPlan(event) {
+        event.preventDefault();
+
+        var content = document.getElementById('content').value;
+        var type = document.getElementById('type').value;
+
+        var formData = {
+            content: content,
+            type: type
+        };
+
+        fetch('/plans/new', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => {
+                // 응답 처리
+                if (response.redirected) {
+                    window.location.href = response.url; // 리다이렉트 수행
+                } else {
+                    // 리다이렉트가 아닌 경우에 대한 처리
+                    console.log(response);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+</script>
 </body>
 </html>
