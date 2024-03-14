@@ -1,7 +1,8 @@
 package com.sidediiiish.questree.controller;
 
 import com.sidediiiish.questree.domain.Plan;
-import com.sidediiiish.questree.dto.PlanForm;
+import com.sidediiiish.questree.dto.NewPlanForm;
+import com.sidediiiish.questree.dto.UpdatePlanForm;
 import com.sidediiiish.questree.repository.MemberRepository;
 import com.sidediiiish.questree.service.PlanService;
 import io.jsonwebtoken.Claims;
@@ -32,7 +33,7 @@ public class PlanController {
 
     // 새로운 일정 등록
     @RequestMapping(value="/plans/new", method= RequestMethod.POST)
-    public String create(@RequestBody PlanForm form, @CookieValue(name = "token") String token) {
+    public String create(@RequestBody NewPlanForm form, @CookieValue(name = "token") String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(secretKey)
                 .build()
@@ -51,4 +52,15 @@ public class PlanController {
         return "redirect:/plans";
     }
 
+    @PostMapping("/plans/update")
+    public String update(@RequestBody UpdatePlanForm form){
+        Plan plan = new Plan();
+        plan.setContent(form.getContent());
+        plan.setType(form.getType());
+        plan.setIsContinue(form.getIsContinue());
+
+        planService.update(form.getId(),plan);
+
+        return "redirect:/plans";
+    }
 }

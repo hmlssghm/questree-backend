@@ -6,8 +6,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PlanForm {
+public class UpdatePlanForm {
+    private Long id;
     private String content;
-
     private PlanType type;
+    private Boolean isContinue;
 }
