@@ -76,6 +76,7 @@
         event.preventDefault();
         var row = event.target.closest('.plan-row');
         var editForm = row.querySelector('.editForm');
+        var editFormId = 'editPlanForm_' + id;
         if (editForm) {
             // Hide other edit forms
             document.querySelectorAll('.editForm').forEach(form => {
@@ -83,13 +84,19 @@
             });
             // Show edit form for this row
             editForm.style.display = 'block';
-            document.getElementById('editPlanId').value = id;
-            // Get content and type from the row
-            var content = row.querySelector('.plan-content').textContent.trim();
-            var type = row.querySelector('.plan-type').textContent.trim();
-            // Set content and type in the edit form
-            editForm.querySelector('#editContent').value = content;
-            editForm.querySelector('#editType').value = type;
+            // Set edit form ID
+            var editPlanIdElement = editForm.querySelector('input[name^="id_"]');
+            if (editPlanIdElement) {
+                editPlanIdElement.value = id;
+                // Get content and type from the row
+                var content = row.querySelector('.plan-content').textContent.trim();
+                var type = row.querySelector('.plan-type').textContent.trim();
+                // Set content and type in the edit form
+                editForm.querySelector('#editContent').value = content;
+                editForm.querySelector('#editType').value = type;
+            } else {
+                console.error('editPlanId 요소를 찾을 수 없습니다.');
+            }
         } else {
             console.error("Edit form not found");
         }
@@ -105,9 +112,10 @@
             "WEEKLY": 1,
             "COUNT": 2
         };
-        var planCheckbox = document.querySelector('.planCheckbox');
+        // Get the checkbox element for this plan
+        var planCheckbox = document.querySelector('input[data-plan-id="' + planId + '"]');
         if (planCheckbox) {
-            var isContinue = !planCheckbox.checked;
+            var isContinue = !planCheckbox.checked; // Invert the checked status of the checkbox
         } else {
             console.error('Checkbox element not found.');
         }
@@ -132,7 +140,7 @@
             .then(response => {
                 if (response.redirected) {
                     console.log('Plan updated successfully.');
-                    // window.location.href = response.url;
+                    window.location.href = response.url;
                 } else {
                     console.error('Error updating plan:', response.status);
                 }
