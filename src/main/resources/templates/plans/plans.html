@@ -36,7 +36,7 @@
                 <!-- Plan member name -->
                 <div class="plan-member-name" th:text="${plan.member.name}" style="display: inline-block;"></div>
                 <!-- Edit icon -->
-                <span class="edit-icon" onclick="editPlan(event, '${plan.id}')">&#9998;</span>
+                <span class="edit-icon" th:onclick="'editPlan(event, \'' + ${plan.id} + '\')'">&#9998;</span>
                 <!-- Edit form -->
                 <div class="editForm">
                     <form id="editPlanForm">
@@ -71,6 +71,7 @@
     </form>
 </div> <!-- /container -->
 <script>
+    // edit form 표출
     function editPlan(event, id) {
         event.preventDefault();
         var row = event.target.closest('.plan-row');
@@ -94,7 +95,56 @@
         }
     }
 
+    // edit form update
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("editPlanForm").addEventListener("submit", function(event) {
+            event.preventDefault();
 
+            var editPlanIdElement = document.getElementById('editPlanId');
+            if (editPlanIdElement) {
+                var planId = editPlanIdElement.value;
+                console.log("planId: ", planId);
+                // planId를 사용하는 코드 작성
+            } else {
+                console.error('editPlanId 요소를 찾을 수 없습니다.');
+            }
+            var content = document.getElementById('editContent').value;
+            var type = document.getElementById('editType').value;
+            var planCheckbox = document.querySelector('.planCheckbox');
+            if (planCheckbox) {
+                var isContinue = !planCheckbox.checked;
+            } else {
+                console.error('Checkbox element not found.');
+            }
+            var formData = {
+                id: planId,
+                content: content,
+                type: type,
+                isContinue: isContinue
+            };
+
+            fetch('/plans/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+                .then(response => {
+                    if (response.redirected) {
+                        console.log('Plan updated successfully.');
+                        // window.location.href = response.url;
+                    } else {
+                        console.error('Error updating plan:', response.status);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating plan:', error);
+                });
+        });
+    });
+
+    // checkbox update
     document.querySelectorAll(".planCheckbox").forEach(function (checkbox) {
         checkbox.addEventListener("change", function (event) {
             event.preventDefault();
@@ -138,41 +188,7 @@
         });
     });
 
-    document.addEventListener("DOMContentLoaded", function() {
-        document.getElementById("editPlanForm").addEventListener("submit", function(event) {
-            event.preventDefault();
-
-            var planId = document.getElementById('editPlanId').value;
-            var content = document.getElementById('editContent').value;
-            var type = document.getElementById('editType').value;
-
-            var formData = {
-                id: planId,
-                content: content,
-                type: type
-            };
-
-            fetch('/plans/update', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            })
-                .then(response => {
-                    if (response.redirected) {
-                        console.log('Plan updated successfully.');
-                        window.location.href = response.url;
-                    } else {
-                        console.error('Error updating plan:', response.status);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error updating plan:', error);
-                });
-        });
-    });
-
+    // 새로운 form 제출
     function submitPlan(event) {
         event.preventDefault();
 
