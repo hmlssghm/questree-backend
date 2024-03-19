@@ -63,4 +63,10 @@ public class PlanController {
 
         return "redirect:/plans";
     }
+
+    @DeleteMapping("/plans/delete/{id}")
+    public String delete(@PathVariable Long id){
+        planService.delete(id);
+        return "redirect:/plans";
+    }
 }
