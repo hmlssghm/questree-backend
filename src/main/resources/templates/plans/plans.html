@@ -19,6 +19,12 @@
 <div class="container">
     <div>
         <h1># plans</h1> <!-- 추가된 제목 -->
+        <!-- 오늘 날짜와 멤버 이름을 표시할 div -->
+        <div id="todayDateAndMemberName">
+            <span th:text="${memberName}"></span> <!-- 변경된 부분: 멤버 이름 표시 -->
+            <span th:text="' | '"></span> <!-- 변경된 부분: 구분자 추가 -->
+            <span th:text="${serverDate}"></span> <!-- 변경된 부분: 오늘 날짜 표시 -->
+        </div>
         <!-- 각 행을 별도의 div로 분리 -->
         <div th:each="plan, planStat : ${plans}">
             <div class="plan-row">
@@ -224,6 +230,8 @@
                 console.error('Error creating new plan:', error);
             });
     }
+
+
 </script>
 </body>
 </html>

@@ -16,6 +16,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.SecretKey;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @AllArgsConstructor
@@ -28,9 +30,22 @@ public class PlanController {
 
     // 일정 조회 페이지(main)
     @GetMapping("/plans")
-    public String showPlans(Model model) {
+    public String showPlans(Model model, @CookieValue(name = "token") String token) {
         List<Plan> plans = planService.getAllPlans();
+
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        String memberName = (String) claims.get("name");
+
+        LocalDate currentDate = LocalDate.now();
+        String formattedDate = currentDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd (E)"));
+
         model.addAttribute("plans", plans);
+        model.addAttribute("memberName", memberName);
+        model.addAttribute("serverDate", formattedDate);
         return "plans/plans";
     }
 
