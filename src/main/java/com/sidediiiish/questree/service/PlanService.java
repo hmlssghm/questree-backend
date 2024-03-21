@@ -1,10 +1,15 @@
 package com.sidediiiish.questree.service;
 
+import com.sidediiiish.questree.domain.Member;
 import com.sidediiiish.questree.domain.Plan;
+import com.sidediiiish.questree.domain.PlanType;
 import com.sidediiiish.questree.repository.MemberRepository;
 import com.sidediiiish.questree.repository.PlanRepository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +35,37 @@ public class PlanService {
     // name으로 조회
     public  List<Plan> findAllByName(String memberName) {
         return planRepository.findAllByMember(memberRepository.findByName(memberName));}
+
+    // 로그인 된 사용자의 plan만 출력
+    // 오늘 날짜인 것만 출력(weekly - 요일 해당, routine - 루틴 시작과 종료(현재 term)사이의 날짜가 오늘일 경우)
+    public List<Plan> findLoginedAndTodayPlan(String memberName, LocalDate date) {
+        Optional<Member> member = memberRepository.findByName(memberName);
+        int day = date.getDayOfWeek().getValue();
+
+        // todo
+        List<Plan> todoPlans = planRepository.findAllByTypeAndMember(PlanType.TODO, member);
+
+        // weekly
+        List<Plan> weeklyPlans = planRepository.findAllByTypeAndMember(PlanType.WEEKLY, member);
+        List<Plan> targetedWeeklyPlan = new ArrayList<>();
+        for (Plan plan : weeklyPlans) {
+            String targetedDay = plan.getWeeklyRoutinePlan().getTargetedDay();
+            if (targetedDay.charAt(day) == '1') {
+                targetedWeeklyPlan.add(plan);
+            }
+        }
+
+        // routine
+        List<Plan> routinePlans = planRepository.findAllByTypeAndMember(PlanType.ROUTINE, member);
+
+        // 결과 리스트 생성 및 추가
+        List<Plan> resultPlans = new ArrayList<>();
+        resultPlans.addAll(todoPlans);
+        resultPlans.addAll(targetedWeeklyPlan);
+        resultPlans.addAll(routinePlans);
+
+        return resultPlans;
+    }
 
     // 수정
     public void update(Long planId, Plan newPlan) {

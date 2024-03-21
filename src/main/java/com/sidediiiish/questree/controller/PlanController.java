@@ -39,16 +39,17 @@ public class PlanController {
                 .getBody();
         String memberName = (String) claims.get("name");
 
-        // 현재 로그인 한 사용자가 작성한 plan 반환
-        List<Plan> plans = planService.findAllByName(memberName);
-
         // 오늘 날짜 반환
         LocalDate currentDate = LocalDate.now();
         String formattedDate = currentDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd (E)"));
 
-        model.addAttribute("plans", plans);
-        model.addAttribute("memberName", memberName);
+        // 현재 로그인 한 사용자가 작성한 plan 반환
+        // 오늘 날짜인 것만 출력
+        List<Plan> plans = planService.findLoginedAndTodayPlan(memberName, currentDate);
+
         model.addAttribute("serverDate", formattedDate);
+        model.addAttribute("memberName", memberName);
+        model.addAttribute("plans", plans);
         return "plans/plans";
     }
 
