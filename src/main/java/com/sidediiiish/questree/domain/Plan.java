@@ -21,4 +21,8 @@ public class Plan extends BaseEntity{
     @ManyToOne
     @JoinColumn
     private Member member;
+
+    @OneToOne
+    @JoinColumn
+    private WeeklyRoutinePlan weeklyRoutinePlan;
 }

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .content {
+            display: none;
+        }
+        .checkbox-group {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+
+<div class="checkbox-group">
+    <label>
+        <input type="checkbox" name="checkbox" onclick="showContent('todo')"> TODO
+    </label>
+    <label>
+        <input type="checkbox" name="checkbox" onclick="showContent('weekly')"> WEEKLY
+    </label>
+    <label>
+        <input type="checkbox" name="checkbox" onclick="showContent('routine')"> ROUTINE
+    </label>
+</div>
+
+<div id="todoContent" class="content">
+    <div class="container">
+        <form id="todoForm">
+            <div class="form-group">
+                <label for="todoContentInput">Content</label>
+                <input type="text" id="todoContentInput" name="content" placeholder="Enter content">
+            </div>
+            <button type="submit" onclick="submitTodoPlan(event)">Submit</button>
+        </form>
+    </div> <!-- /container -->
+</div>
+
+<div id="weeklyContent" class="content">
+    <div class="container">
+        <form id="weeklyForm">
+            <div class="form-group">
+                <label for="weeklyContentInput">Content</label>
+                <input type="text" id="weeklyContentInput" name="content" placeholder="Enter content">
+            </div>
+            <div class="form-group">
+                <label>Reset Day</label><br>
+                <input type="checkbox" name="resetDay" value="Sun" onclick="uncheckOtherCheckboxes(this)">Sun
+                <input type="checkbox" name="resetDay" value="Mon" onclick="uncheckOtherCheckboxes(this)">Mon
+                <input type="checkbox" name="resetDay" value="Tue" onclick="uncheckOtherCheckboxes(this)">Tue
+                <input type="checkbox" name="resetDay" value="Wed" onclick="uncheckOtherCheckboxes(this)">Wed
+                <input type="checkbox" name="resetDay" value="Thu" onclick="uncheckOtherCheckboxes(this)">Thu
+                <input type="checkbox" name="resetDay" value="Fri" onclick="uncheckOtherCheckboxes(this)">Fri
+                <input type="checkbox" name="resetDay" value="Sat" onclick="uncheckOtherCheckboxes(this)">Sat
+            </div>
+            <div class="form-group">
+                <label>Targeted Day</label><br>
+                <input type="checkbox" name="targetedDay" value="Sun">Sun
+                <input type="checkbox" name="targetedDay" value="Mon">Mon
+                <input type="checkbox" name="targetedDay" value="Tue">Tue
+                <input type="checkbox" name="targetedDay" value="Wed">Wed
+                <input type="checkbox" name="targetedDay" value="Thu">Thu
+                <input type="checkbox" name="targetedDay" value="Fri">Fri
+                <input type="checkbox" name="targetedDay" value="Sat">Sat
+            </div>
+            <button type="submit" onclick="submitWeeklyPlan(event)">Submit</button>
+        </form>
+    </div> <!-- /container -->
+</div>
+
+<div id="routineContent" class="content">
+    ROUTINE Content Here
+</div>
+
+<script>
+    function showContent(type) {
+        var contentDivs = document.getElementsByClassName("content");
+        for (var i = 0; i < contentDivs.length; i++) {
+            contentDivs[i].style.display = "none";
+        }
+
+        var contentToShow = document.getElementById(type + "Content");
+        if (contentToShow) {
+            contentToShow.style.display = "block";
+        }
+
+        // Uncheck other checkboxes
+        var checkboxes = document.getElementsByName("checkbox");
+        for (var i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].getAttribute("onclick") !== "showContent('" + type + "')") {
+                checkboxes[i].checked = false;
+            }
+        }
+    }
+
+    function uncheckOtherCheckboxes(clickedCheckbox) {
+        var checkboxes = document.getElementsByName(clickedCheckbox.name);
+        for (var i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i] !== clickedCheckbox) {
+                checkboxes[i].checked = false;
+            }
+        }
+    }
+
+
+    // Submit new TODO form
+    function submitTodoPlan(event) {
+        event.preventDefault();
+
+        var content = document.getElementById('todoContentInput').value;
+        var type = 0;
+
+        var formData = {
+            content: content,
+            type: type
+        };
+
+        fetch('/plans/new', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => {
+                // 응답 처리
+                if (response.redirected) {
+                    window.location.href = response.url; // 리다이렉트 수행
+                } else {
+                    // 리다이렉트가 아닌 경우에 대한 처리
+                    console.log(response);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    // submit new WeeklyRoutine form
+    function submitWeeklyPlan(event) {
+        event.preventDefault();
+
+        var content = document.getElementById('weeklyContentInput').value;
+        var type = 1;
+
+        var formData = {
+            content: content,
+            type: type
+        };
+
+        // Process resetDay checkboxes
+        var resetDayCheckboxes = document.getElementsByName('resetDay');
+        var resetDay = -1; // 초기값을 -1로 설정하여 아무것도 체크되지 않은 상태로 초기화
+        resetDayCheckboxes.forEach(function (checkbox, index) {
+            if (checkbox.checked) {
+                resetDay = index; // 체크된 체크박스의 인덱스를 resetDay에 할당
+            }
+        });
+        formData.resetDay = resetDay;
+
+        // Process targetedDay checkboxes
+        var targetedDayCheckboxes = document.getElementsByName('targetedDay');
+        var targetedDay = "";
+        targetedDayCheckboxes.forEach(function (checkbox) {
+            targetedDay += checkbox.checked ? "1" : "0"; // 체크 여부에 따라 1 또는 0을 추가
+        });
+        formData.targetedDay = targetedDay;
+
+        // Send form data to server using fetch API
+        fetch('/plans/new', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => {
+                // Response handling
+                if (response.redirected) {
+                    window.location.href = response.url; // Perform redirect
+                } else {
+                    // Handling when not redirected
+                    console.log(response);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+</script>
+
+</body>
+</html>

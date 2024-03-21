@@ -1,10 +1,13 @@
 package com.sidediiiish.questree.controller;
 
 import com.sidediiiish.questree.domain.Plan;
+import com.sidediiiish.questree.domain.PlanType;
+import com.sidediiiish.questree.domain.WeeklyRoutinePlan;
 import com.sidediiiish.questree.dto.NewPlanForm;
 import com.sidediiiish.questree.dto.UpdatePlanForm;
 import com.sidediiiish.questree.repository.MemberRepository;
 import com.sidediiiish.questree.service.PlanService;
+import com.sidediiiish.questree.service.WeeklyRoutinePlanService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.AllArgsConstructor;
@@ -20,6 +23,7 @@ import java.util.List;
 public class PlanController {
     private final MemberRepository memberRepository;
     private final PlanService planService;
+    private final WeeklyRoutinePlanService weeklyRoutinePlanService;
     private final SecretKey secretKey;
 
     // 일정 조회 페이지(main)
@@ -30,6 +34,11 @@ public class PlanController {
         return "plans/plans";
     }
 
+    // 새로운 일정 등록 페이지
+    @GetMapping("/newPlan")
+    public String showNewPlanPage(){
+        return "plans/newPlan";
+    }
 
     // 새로운 일정 등록
     @RequestMapping(value="/plans/new", method= RequestMethod.POST)
@@ -47,6 +56,14 @@ public class PlanController {
         plan.setType(form.getType());
         plan.setIsContinue(Boolean.TRUE);
         plan.setMember(memberRepository.findByName(memberName).get());
+        if (form.getType().equals(PlanType.WEEKLY)){
+            WeeklyRoutinePlan weeklyRoutinePlan = new WeeklyRoutinePlan();
+            weeklyRoutinePlan.setResetDay(form.getResetDay());
+            weeklyRoutinePlan.setTargetedDay(form.getTargetedDay());
+            weeklyRoutinePlanService.create(weeklyRoutinePlan);
+
+            plan.setWeeklyRoutinePlan(weeklyRoutinePlan);
+        }
 
         planService.create(plan);
         return "redirect:/plans";

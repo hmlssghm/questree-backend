@@ -10,4 +10,8 @@ public class NewPlanForm {
     private String content;
 
     private PlanType type;
+
+    // weeklyRoutinePlan
+    private String targetedDay;
+    private Integer resetDay;
 }
