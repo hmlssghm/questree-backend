@@ -31,8 +31,7 @@ public class PlanController {
     // 일정 조회 페이지(main)
     @GetMapping("/plans")
     public String showPlans(Model model, @CookieValue(name = "token") String token) {
-        List<Plan> plans = planService.getAllPlans();
-
+        // 현재 로그인 중인 사용자 반환
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(secretKey)
                 .build()
@@ -40,6 +39,10 @@ public class PlanController {
                 .getBody();
         String memberName = (String) claims.get("name");
 
+        // 현재 로그인 한 사용자가 작성한 plan 반환
+        List<Plan> plans = planService.findAllByName(memberName);
+
+        // 오늘 날짜 반환
         LocalDate currentDate = LocalDate.now();
         String formattedDate = currentDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd (E)"));
 

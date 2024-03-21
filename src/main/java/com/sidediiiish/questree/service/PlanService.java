@@ -1,6 +1,7 @@
 package com.sidediiiish.questree.service;
 
 import com.sidediiiish.questree.domain.Plan;
+import com.sidediiiish.questree.repository.MemberRepository;
 import com.sidediiiish.questree.repository.PlanRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,9 +11,11 @@ import java.util.Optional;
 @Transactional
 public class PlanService {
     private final PlanRepository planRepository;
+    private final MemberRepository memberRepository;
 
-    public PlanService(PlanRepository planRepository) {
+    public PlanService(PlanRepository planRepository, MemberRepository memberRepository) {
         this.planRepository = planRepository;
+        this.memberRepository = memberRepository;
     }
 
     // plan 작성
@@ -23,6 +26,10 @@ public class PlanService {
 
     // plan id로 조회
     public Optional<Plan> findOne(Long planId) {return planRepository.findById(planId);}
+
+    // name으로 조회
+    public  List<Plan> findAllByName(String memberName) {
+        return planRepository.findAllByMember(memberRepository.findByName(memberName));}
 
     // 수정
     public void update(Long planId, Plan newPlan) {

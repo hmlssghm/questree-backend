@@ -30,7 +30,7 @@ public class SpringConfig {
     }
 
     @Bean
-    public PlanService planService() { return new PlanService(planRepository); }
+    public PlanService planService() { return new PlanService(planRepository, memberRepository); }
 
     @Bean
     public WeeklyRoutinePlanService weeklyRoutinePlanService() {
