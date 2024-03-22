@@ -1,8 +1,10 @@
 package com.sidediiiish.questree.config;
 
+import com.sidediiiish.questree.repository.CountRoutinePlanRepository;
 import com.sidediiiish.questree.repository.MemberRepository;
 import com.sidediiiish.questree.repository.PlanRepository;
 import com.sidediiiish.questree.repository.WeeklyRoutinePlanRepository;
+import com.sidediiiish.questree.service.CountRoutinePlanService;
 import com.sidediiiish.questree.service.MemberService;
 import com.sidediiiish.questree.service.PlanService;
 import com.sidediiiish.questree.service.WeeklyRoutinePlanService;
@@ -15,12 +17,14 @@ public class SpringConfig {
     private final MemberRepository memberRepository;
     private final PlanRepository planRepository;
     private final WeeklyRoutinePlanRepository weeklyRoutinePlanRepository;
+    private final CountRoutinePlanRepository countRoutinePlanRepository;
 
     @Autowired
-    public SpringConfig(MemberRepository memberRepository, PlanRepository planRepository, WeeklyRoutinePlanRepository weeklyRoutinePlanRepository) {
+    public SpringConfig(MemberRepository memberRepository, PlanRepository planRepository, WeeklyRoutinePlanRepository weeklyRoutinePlanRepository, CountRoutinePlanRepository countRoutinePlanRepository) {
         this.memberRepository = memberRepository;
         this.planRepository = planRepository;
         this.weeklyRoutinePlanRepository = weeklyRoutinePlanRepository;
+        this.countRoutinePlanRepository = countRoutinePlanRepository;
     }
 
 
@@ -35,4 +39,8 @@ public class SpringConfig {
     @Bean
     public WeeklyRoutinePlanService weeklyRoutinePlanService() {
         return new WeeklyRoutinePlanService(weeklyRoutinePlanRepository);}
+
+    @Bean
+    public CountRoutinePlanService countRoutinePlanService() {
+        return new CountRoutinePlanService(countRoutinePlanRepository);}
 }

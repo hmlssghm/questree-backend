@@ -1,11 +1,13 @@
 package com.sidediiiish.questree.controller;
 
+import com.sidediiiish.questree.domain.CountRoutinePlan;
 import com.sidediiiish.questree.domain.Plan;
 import com.sidediiiish.questree.domain.PlanType;
 import com.sidediiiish.questree.domain.WeeklyRoutinePlan;
 import com.sidediiiish.questree.dto.NewPlanForm;
 import com.sidediiiish.questree.dto.UpdatePlanForm;
 import com.sidediiiish.questree.repository.MemberRepository;
+import com.sidediiiish.questree.service.CountRoutinePlanService;
 import com.sidediiiish.questree.service.PlanService;
 import com.sidediiiish.questree.service.WeeklyRoutinePlanService;
 import io.jsonwebtoken.Claims;
@@ -20,12 +22,15 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static com.fasterxml.jackson.databind.type.LogicalType.DateTime;
+
 @AllArgsConstructor
 @Controller
 public class PlanController {
     private final MemberRepository memberRepository;
     private final PlanService planService;
     private final WeeklyRoutinePlanService weeklyRoutinePlanService;
+    private final CountRoutinePlanService countRoutinePlanService;
     private final SecretKey secretKey;
 
     // 일정 조회 페이지(main)
@@ -82,6 +87,13 @@ public class PlanController {
             weeklyRoutinePlanService.create(weeklyRoutinePlan);
 
             plan.setWeeklyRoutinePlan(weeklyRoutinePlan);
+        } else if (form.getType().equals(PlanType.COUNT)) {
+            CountRoutinePlan countRoutinePlan = new CountRoutinePlan();
+            countRoutinePlan.setStartDate(LocalDate.parse(form.getStartDate()));
+            countRoutinePlan.setEndDate(LocalDate.parse(form.getEndDate()));
+            countRoutinePlan.setIntervals(form.getIntervals());
+            countRoutinePlan.setRepeatCount(form.getRepeatCount());
+            countRoutinePlanService.create(countRoutinePlan);
         }
 
         planService.create(plan);

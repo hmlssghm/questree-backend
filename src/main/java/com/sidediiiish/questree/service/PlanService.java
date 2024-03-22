@@ -56,7 +56,7 @@ public class PlanService {
         }
 
         // routine
-        List<Plan> routinePlans = planRepository.findAllByTypeAndMember(PlanType.ROUTINE, member);
+        List<Plan> routinePlans = planRepository.findAllByTypeAndMember(PlanType.COUNT, member);
 
         // 결과 리스트 생성 및 추가
         List<Plan> resultPlans = new ArrayList<>();

@@ -25,4 +25,8 @@ public class Plan extends BaseEntity{
     @OneToOne
     @JoinColumn
     private WeeklyRoutinePlan weeklyRoutinePlan;
+
+    @OneToOne
+    @JoinColumn
+    private CountRoutinePlan countRoutinePlan;
 }

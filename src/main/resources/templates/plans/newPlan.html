@@ -22,7 +22,7 @@
         <input type="checkbox" name="checkbox" onclick="showContent('weekly')"> WEEKLY
     </label>
     <label>
-        <input type="checkbox" name="checkbox" onclick="showContent('routine')"> ROUTINE
+        <input type="checkbox" name="checkbox" onclick="showContent('count')"> COUNT
     </label>
 </div>
 
@@ -69,10 +69,68 @@
         </form>
     </div> <!-- /container -->
 </div>
-
-<div id="routineContent" class="content">
-    ROUTINE Content Here
+<div id="countContent" class="content">
+    <div class="container">
+        <form id="countForm">
+            <div class="form-group">
+                <label for="countContentInput">Content</label>
+                <input type="text" id="countContentInput" name="content" placeholder="Enter content">
+            </div>
+            <div class="form-group">
+                <label for="startDate">Start Date</label>
+                <input type="date" id="startDate" name="startDate">
+            </div>
+            <div class="form-group">
+                <label for="endDate">End Date</label>
+                <input type="date" id="endDate" name="endDate">
+            </div>
+            <div class="form-group">
+                <label for="intervals">Interval</label>
+                <select id="intervals">
+                    <option value="7">7</option>
+                    <option value="15">15</option>
+                    <option value="30">30</option>
+                </select>
+                <span>일에</span>
+                <select id="repeatCount">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                    <option value="13">13</option>
+                    <option value="14">14</option>
+                    <option value="15">15</option>
+                    <option value="16">16</option>
+                    <option value="17">17</option>
+                    <option value="18">18</option>
+                    <option value="19">19</option>
+                    <option value="20">20</option>
+                    <option value="21">21</option>
+                    <option value="22">22</option>
+                    <option value="23">23</option>
+                    <option value="24">24</option>
+                    <option value="25">25</option>
+                    <option value="26">26</option>
+                    <option value="27">27</option>
+                    <option value="28">28</option>
+                    <option value="29">29</option>
+                    <option value="30">30</option>
+                </select>
+                <span>번</span>
+            </div>
+            <button type="submit" onclick="submitCountPlan(event)">Submit</button>
+        </form>
+    </div> <!-- /container -->
 </div>
+
 
 <script>
     function showContent(type) {
@@ -182,6 +240,66 @@
                     window.location.href = response.url; // Perform redirect
                 } else {
                     // Handling when not redirected
+                    console.log(response);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    // countRoutine form
+    function submitCountPlan(event) {
+        event.preventDefault();
+
+        var content = document.getElementById('countContentInput').value;
+        var type = 2;
+        var startDate = document.getElementById('startDate').value;
+        var endDate = document.getElementById('endDate').value;
+        var intervals = document.getElementById('intervals').value;
+        var repeatCount = document.getElementById('repeatCount').value;
+
+        // Check if repeatCount is greater than intervals
+        if (parseInt(repeatCount) > parseInt(intervals)) {
+            alert("Repeat count cannot be greater than intervals.");
+            return; // Stop execution
+        }
+
+        // Check if startDate is before endDate
+        if (new Date(startDate) >= new Date(endDate)) {
+            alert("Start date must be before end date.");
+            return; // Stop execution
+        }
+
+        // Check if the difference between startDate and endDate is greater than intervals
+        var diffInDays = Math.floor((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24));
+        if (diffInDays > parseInt(intervals)) {
+            alert("The difference between start date and end date cannot be greater than intervals.");
+            return; // Stop execution
+        }
+
+        var formData = {
+            content: content,
+            type: type,
+            startDate: startDate,
+            endDate: endDate,
+            intervals: intervals,
+            repeatCount: repeatCount
+        };
+
+        fetch('/plans/new', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => {
+                // 응답 처리
+                if (response.redirected) {
+                    window.location.href = response.url; // 리다이렉트 수행
+                } else {
+                    // 리다이렉트가 아닌 경우에 대한 처리
                     console.log(response);
                 }
             })
